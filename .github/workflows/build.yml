@@ -23,7 +23,7 @@ jobs:
       - name: Clone FanchmWrt
         run: |
           git clone https://github.com/immortalwrt/immortalwrt.git
-          cd openwrt
+          cd immortalwrt
           # 把你仓库根目录的 .config 复制进去
           cp ../.config .config
 
