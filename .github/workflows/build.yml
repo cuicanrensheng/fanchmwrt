@@ -29,24 +29,24 @@ jobs:
 
       - name: Update feeds
         run: |
-          cd openwrt
+          cd immortalwrt
           ./scripts/feeds update -a
           ./scripts/feeds install -a
 
       - name: Download
         run: |
-          cd openwrt
+          cd immortalwrt
           make defconfig
           make download -j$(nproc)
 
       - name: Build firmware
         run: |
-          cd openwrt
+          cd immortalwrt
           make -j$(nproc) V=s
 
       - name: Upload firmware
         uses: actions/upload-artifact@v4
         with:
           name: FanchmWrt-R4AC
-          path: openwrt/bin/targets/ramips/mt7620/*-miwifi_r4ac-*-sysupgrade.bin
+          path: immortalwrt/bin/targets/ramips/mt7620/*-miwifi_r4ac-*-sysupgrade.bin
           retention-days: 7
