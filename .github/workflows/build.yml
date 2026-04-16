@@ -1,0 +1,52 @@
+name: Build FanchmWrt for R4AC
+
+on:
+  workflow_dispatch:
+    inputs:
+      BRANCH:
+        description: 'FanchmWrt 分支'
+        required: true
+        default: 'main'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install dependencies
+        run: |
+          sudo apt-get update -y
+          sudo apt-get install -y build-essential ccache libncurses5-dev libncursesw5-dev zlib1g-dev gawk git gettext libssl-dev xsltproc unzip python3-pip python3-setuptools
+
+      - name: Clone FanchmWrt
+        run: |
+          git clone https://github.com/FanchmWang/FanchmWrt.git -b ${{ github.event.inputs.BRANCH }} openwrt
+          cd openwrt
+          # 把你仓库根目录的 .config 复制进去
+          cp ../.config .config
+
+      - name: Update feeds
+        run: |
+          cd openwrt
+          ./scripts/feeds update -a
+          ./scripts/feeds install -a
+
+      - name: Download
+        run: |
+          cd openwrt
+          make defconfig
+          make download -j$(nproc)
+
+      - name: Build firmware
+        run: |
+          cd openwrt
+          make -j$(nproc) V=s
+
+      - name: Upload firmware
+        uses: actions/upload-artifact@v4
+        with:
+          name: FanchmWrt-R4AC
+          path: openwrt/bin/targets/ramips/mt7620/*-miwifi_r4ac-*-sysupgrade.bin
+          retention-days: 7
